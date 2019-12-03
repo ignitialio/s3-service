@@ -1,0 +1,80 @@
+version: '3.3'
+
+services:
+  iioat:
+    image: ignitial/iioat:1.0.0
+    container_name: iioat
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - IIOS_SERVER_PORT=8080
+      - IIOS_NAMESPACE=${IIOS_NAMESPACE}
+      - IIOS_REDIS_HOST=redis
+      - IIOS_S3_ENDPOINT=${IIOS_S3_ENDPOINT}
+      - IIOS_S3_PORT=${IIOS_S3_PORT}
+      - IIOS_S3_BUCKET=${IIOS_S3_BUCKET}
+      - IIOS_S3_SECURE=${IIOS_S3_SECURE}
+      - IIOS_S3_ACCESS_KEY_ID=${IIOS_S3_ACCESS_KEY_ID}
+      - IIOS_S3_SECRET_ACCESS_KEY=${IIOS_S3_SECRET_ACCESS_KEY}
+      - IIOS_EMAILER_SMTP_USER=support@ignitial.fr
+      - IIOS_EMAILER_SMTP_HOST=mail.gandi.net
+      - IIOS_EMAILER_SMTP_PORT=587
+      - IIOS_EMAILER_SMTP_PASS=${IIOS_EMAILER_SMTP_PASS}
+    networks:
+      infra:
+
+  dlake:
+    image: ignitial/dlake
+    container_name: dlake
+    ports:
+      - "20989-20999:20989-20999"
+    environment:
+      - IIOS_REDIS_HOST=redis
+      - IIOS_MONGODB_URI=mongodb://mongo:27017
+      - IIOS_DBNAME=${IIOS_DBNAME}
+      - IIOS_NAMESPACE=${IIOS_NAMESPACE}
+      - IIOS_SERVER_HOST=dlake
+      - IIOS_SERVER_PORT=20991
+    networks:
+      infra:
+
+  auth:
+    image: ignitial/auth
+    container_name: auth
+    ports:
+      - "20199:20199"
+    environment:
+      - IIOS_REDIS_HOST=redis
+      - IIOS_NAMESPACE=${IIOS_NAMESPACE}
+      - IIOS_SERVER_HOST=auth
+      - IIOS_SERVER_PORT=20199
+    networks:
+      infra:
+
+  s3:
+    image: ignitial/s3:${SVC_VERSION}
+    container_name: s3
+    volumes:
+      - ${PWD}/dist:/opt/s3/dist
+      - ${PWD}/server:/opt/s3/server
+      - ${PWD}/node_modules:/opt/s3/node_modules
+    ports:
+      - ${IIOS_DOCKER_EXPORTED_PORTS}
+    environment:
+      - IIOS_REDIS_HOST=redis
+      - IIOS_NAMESPACE=${IIOS_NAMESPACE}
+      - IIOS_SERVER_HOST=${IIOS_SERVER_HOST}
+      - IIOS_SERVER_PORT=${IIOS_SERVER_PORT}
+      - IIOS_S3_ENDPOINT=${IIOS_S3_ENDPOINT}
+      - IIOS_S3_PORT=${IIOS_S3_PORT}
+      - IIOS_S3_BUCKET=${IIOS_S3_BUCKET}
+      - IIOS_S3_SECURE=${IIOS_S3_SECURE}
+      - IIOS_S3_ACCESS_KEY_ID=${IIOS_S3_ACCESS_KEY_ID}
+      - IIOS_S3_SECRET_ACCESS_KEY=${IIOS_S3_SECRET_ACCESS_KEY}
+    networks:
+      infra:
+
+networks:
+  infra:
+    external: true

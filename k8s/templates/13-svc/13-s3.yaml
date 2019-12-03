@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: s3
+  labels:
+    app: s3
+spec:
+  replicas: "{{$.iios.app.replicas}}"
+  selector:
+    matchLabels:
+      app: s3
+  template:
+    metadata:
+      labels:
+        app: s3
+    spec:
+      containers:
+      - name: s3
+        image: "ignitial/s3:{{$.iios.app.version}}"
+        imagePullPolicy: "{{$.iios.app.imagePullPolicy}}"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/s3/server/config/generated
+        ports: "{{$.iios.app.ports}}"
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: config-volume
+          configMap:
+            name: s3-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: s3
+spec:
+  selector:
+    app: s3
+  ports:
+  - name: http
+    port: "{{$.iios.app.ports[0].containerPort}}"
+    targetPort: "{{$.iios.app.ports[0].containerPort}}"

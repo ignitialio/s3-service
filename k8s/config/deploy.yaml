@@ -1,0 +1,21 @@
+apiVersion: 1
+registries:
+  GitLab:
+    domain: registry.gitlab.com/
+    configData: "{{base64filedata(~/.docker/config.json)}}"
+  Local:
+    domain: ""
+iios:
+  namespace: ignitialio
+  app:
+    version: "{{packageJSON.version}}"
+    # use private registry if necessary (prod deploy)
+    # registry: "{{$.registries.GitLab}}"
+    registry: "{{$.registries.Local}}"
+    replicas: 1
+    ports:
+      - containerPort: 20499
+        name: s3-service
+    imagePullPolicy: IfNotPresent
+cluster:
+  kubeConfigPath: ~/.kube/config

@@ -1,0 +1,19 @@
+version: '3.3'
+
+services:
+  s3:
+    image: ignitial/s3:${SVC_VERSION}
+    container_name: s3
+    ports:
+      - ${IIOS_DOCKER_EXPORTED_PORTS}
+    environment:
+      - IIOS_REDIS_HOST=redis
+      - IIOS_NAMESPACE=${IIOS_NAMESPACE}
+      - IIOS_SERVER_HOST=s3
+      - IIOS_SERVER_PORT=${IIOS_SERVER_PORT}
+    networks:
+      infra:
+
+networks:
+  infra:
+    external: true

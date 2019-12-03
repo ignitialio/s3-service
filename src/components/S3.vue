@@ -1,0 +1,128 @@
+<template>
+  <div :id="id" class="s3-layout">
+    <ig-form class="s3-config"
+      v-if="!!config && !!schema" v-model="config" :schema="schema"></ig-form>
+
+    <div class="s3-header">{{ $t('Testing') }}</div>
+
+    <div class="s3-test">
+      <v-select class="s3-form--item" :label="$t('Buckets')"
+        v-model="bucket" :items="buckets" item-text="name"/>
+
+      <v-select v-if="bucket && objects" :disabled="!bucket"
+        class="s3-form--item" :label="$t('Buckets')"
+        v-model="object" :items="objects" item-text="name"/>
+
+      <v-btn class="s3-form--item" color="blue lighten-2" @click="handleTest"
+        outlined elevation="2" dark v-show="bucket && object"
+        prepend="test">
+        <v-icon left>check</v-icon>{{ $t('Test') }}</v-btn>
+
+      <div style="flex: 1"></div>
+
+      <v-icon v-if="tested && testOk" color="green darken-1">check</v-icon>
+      <v-icon v-if="tested && !testOk" color="red darken-1">clear</v-icon>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: [ ],
+  data: () => {
+    return {
+      id: 's3_' + Math.random().toString(36).slice(2),
+      config: null,
+      schema: null,
+      buckets: [],
+      bucket: null,
+      objects: null,
+      object: null,
+      tested: false,
+      testOk: false
+    }
+  },
+  watch: {
+    bucket: function(val) {
+      if (this.s3 && val) {
+        this.s3.listObjects(val, null, null).then(docs => {
+          console.log($j(docs))
+          this.objects = docs
+        }).catch(err => {
+          console.log(err)
+        })
+      }
+    }
+  },
+  methods: {
+    handleTest() {
+      this.tested = true
+      this.s3.testGetObject(this.bucket, this.object).then(() => {
+        this.testOk = true
+      }).catch(err => {
+        console.log(err)
+      })
+    }
+  },
+  mounted() {
+    // dev
+    // refresh service UI on hot reload
+    this.$services.once('service:up', service => {
+      if (service.name === 's3') {
+        localStorage.setItem('HR_PATH', '/service-s3')
+        window.location.reload()
+      }
+    })
+
+    this.$services.waitForService('s3').then(async s3Service => {
+      this.s3 = s3Service
+
+      try {
+        this.config = await this.s3.getConfig()
+        this.schema = this.$services.servicesDico.s3.options.schema
+        this.buckets = await this.s3.listBuckets()
+      } catch (err) {
+        console.log(err)
+      }
+    }).catch(err => console.log(err))
+  },
+  beforeDestroy() {
+
+  }
+}
+</script>
+
+<style>
+.s3-layout {
+  width: 100%;
+  height: calc(100% - 0px);
+  overflow-y: auto;
+  padding: 0 16px;
+}
+
+.s3-config {
+  height: 492px!important;
+}
+
+.s3-form--item {
+  max-width: 300px;
+  margin-left: 16px;
+}
+
+.s3-header {
+  border-top: 1px solid gainsboro;
+  margin: 16px 0;
+  padding-top: 16px;
+  width: 100%;
+  color: dimgray;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.s3-test {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+</style>

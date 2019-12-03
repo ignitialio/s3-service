@@ -1,0 +1,75 @@
+{
+  "name": "s3",
+  "version": "1.0.0",
+  "main": "server/index.js",
+  "repository": "git@github.com:ignitialio/s3-service.git",
+  "author": "Victor Andritoiu <devandrito@gmail.com>",
+  "keywords": [
+    "microservice",
+    "service discovery",
+    "api gateway",
+    "serverless",
+    "streaming",
+    "data pipes",
+    "micro-service",
+    "access control"
+  ],
+  "license": "MIT",
+  "watch": {
+    "dev:hr:reload": {
+      "patterns": [
+        "src",
+        "components",
+        "css"
+      ],
+      "extensions": "js,vue,css",
+      "runOnChangeOnly": false
+    }
+  },
+  "scripts": {
+    "watch": "npm-watch",
+    "client:serve": "vue-cli-service serve",
+    "client:build": "vue-cli-service build",
+    "server:start": "node ./server/index.js",
+    "dev:standalone": "npm-run-all --parallel server:start client:serve",
+    "dev:start": "npm run client:build && ./scripts/dev_start.sh",
+    "dev:start:full": "npm run client:build && ./scripts/dev_start.sh full",
+    "dev:hr:reload": "npm run client:build && docker stop s3 && sleep 2 && docker start s3",
+    "dev:start:hr": "npm run client:build && npm-run-all --parallel watch dev:start",
+    "dev:stop": "./scripts/dev_clean.sh",
+    "dev:stop:full": "./scripts/dev_clean.sh full",
+    "prod:start": "./scripts/prod_start.sh",
+    "prod:stop": "./scripts/prod_clean.sh",
+    "docker:build": "docker build --rm -t ignitial/s3 . && docker tag ignitial/s3 registry.gitlab.com/ignitial && docker tag ignitial/s3 registry.gitlab.com/ignitial/s3:${npm_package_version} && docker tag ignitial/s3 ignitial/s3:${npm_package_version}",
+    "docker:build:minikube": "eval $(minikube docker-env) && npm run docker:build",
+    "docker:publish:private": "docker push registry.gitlab.com/ignitial/s3 && docker push registry.gitlab.com/ignitial/s3:${npm_package_version}",
+    "docker:publish:public": "docker push ignitial/s3 && docker push ignitial/s3:${npm_package_version}",
+    "docker:publish:minikube": "docker save ignitial/s3:${npm_package_version} | (eval $(minikube docker-env) && docker load)",
+    "k8s:deploy": "k8s/k8s-deploy.sh",
+    "k8s:remove": "k8s/k8s-remove.sh"
+  },
+  "dependencies": {
+    "@ignitial/iio-services": "^2.2.8",
+    "minio": "^7.0.12",
+    "yaml": "^1.7.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.12.1",
+    "@vue/cli-service": "^3.12.1",
+    "npm-run-all": "^4.1.5",
+    "npm-watch": "^0.6.0",
+    "sass": "^1.23.1",
+    "sass-loader": "^7.3.1",
+    "vue": "^2.6.10",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
