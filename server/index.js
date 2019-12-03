@@ -68,17 +68,23 @@ class S3 extends Service {
       this._minioClient.getObject(bucket, name, (err, readableStream) => {
         if (err) {
           reject(err)
+          console.log(err)
         } else {
           let streamId = 's3:file:' + bucket + ':' + name + ':' + utils.uuid()
-          let stream = this._addStream(streamId)
-          readableStream.pipe(stream)
-          readableStream.once('close', () => {
-            setTimeout(() => {
-              this._removeStream(stream)
-            }, 5000)
-          })
-
           resolve(streamId)
+
+          try {
+            let stream = this._addStream(streamId)
+            readableStream.pipe(stream)
+            readableStream.once('end', () => {
+              setTimeout(() => {
+                this._removeStream(stream)
+              }, 5000)
+            })
+          } catch (lerr) {
+            console.log(lerr)
+            reject(lerr)
+          }
         }
       })
     })
@@ -91,6 +97,7 @@ class S3 extends Service {
     return new Promise((resolve, reject) => {
       this.getObject(bucket, name).then(streamId => {
         let inputStreamId = 's3:file:input:' + bucket + ':' + name + ':' + utils.uuid()
+        console.log('try to read', streamId)
         // input stream
         let stream = this._addStream(inputStreamId, streamId)
 
