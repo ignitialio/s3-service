@@ -96,29 +96,33 @@ class S3 extends Service {
     /* @_GET_ */
     return new Promise((resolve, reject) => {
       this.getObject(bucket, name).then(streamId => {
-        let inputStreamId = 's3:file:input:' + bucket + ':' + name + ':' + utils.uuid()
-        console.log('try to read', streamId)
-        // input stream
-        let stream = this._addStream(inputStreamId, streamId)
+        try {
+          let inputStreamId = 's3:file:input:' + bucket + ':' + name + ':' + utils.uuid()
 
-        let testStream = fs.createWriteStream(path.join(__dirname, './test.data'))
-        testStream.pipe(stream)
+          // input stream
+          let stream = this._addStream(inputStreamId, streamId)
+          // test stream
+          let testStream = fs.createWriteStream(path.join(__dirname, './test.data'))
+          stream.pipe(testStream)
 
-        testStream.on('error', err => {
-          reject(err)
-          this._removeStream(inputStreamId)
-        })
-
-        testStream.on('end',  () => {
-          try {
-            fs.unlinkSync(path.join(__dirname, './test.data'))
-            this._removeStream(inputStreamId)
-            resolve()
-          } catch (err) {
+          stream.on('error', err => {
             reject(err)
             this._removeStream(inputStreamId)
-          }
-        })
+          })
+
+          stream.on('end',  () => {
+            try {
+              fs.unlinkSync(path.join(__dirname, './test.data'))
+              this._removeStream(inputStreamId)
+              resolve()
+            } catch (err) {
+              reject(err)
+              this._removeStream(inputStreamId)
+            }
+          })
+        } catch (err) {
+          reject(err)
+        }
       })
     })
   }

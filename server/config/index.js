@@ -172,6 +172,12 @@ module.exports = {
         ],
         'Testing': [
           'Test'
+        ],
+        'Buckets': [
+          'Seaux (Buckets)'
+        ],
+        'Files': [
+          'Fichiers'
         ]
       },
       /* eventually any other data */

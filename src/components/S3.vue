@@ -10,7 +10,7 @@
         v-model="bucket" :items="buckets" item-text="name"/>
 
       <v-select v-if="bucket && objects" :disabled="!bucket"
-        class="s3-form--item" :label="$t('Buckets')"
+        class="s3-form--item" :label="$t('Files')"
         v-model="object" :items="objects" item-text="name"/>
 
       <v-btn class="s3-form--item" color="blue lighten-2" @click="handleTest"
@@ -18,7 +18,9 @@
         prepend="test">
         <v-icon left>check</v-icon>{{ $t('Test') }}</v-btn>
 
-      <div style="flex: 1"></div>
+      <div class="s3-error" :class="{ 'active': error !== '' }">
+        {{ error }}
+      </div>
 
       <v-icon v-if="tested && testOk" color="green darken-1">check</v-icon>
       <v-icon v-if="tested && !testOk" color="red darken-1">clear</v-icon>
@@ -39,14 +41,14 @@ export default {
       objects: null,
       object: null,
       tested: false,
-      testOk: false
+      testOk: false,
+      error: ''
     }
   },
   watch: {
     bucket: function(val) {
       if (this.s3 && val) {
         this.s3.listObjects(val, null, null).then(docs => {
-          console.log($j(docs))
           this.objects = docs
         }).catch(err => {
           console.log(err)
@@ -56,10 +58,12 @@ export default {
   },
   methods: {
     handleTest() {
+      this.error = ''
       this.tested = true
       this.s3.testGetObject(this.bucket, this.object).then(() => {
         this.testOk = true
       }).catch(err => {
+        this.error = err
         console.log(err)
       })
     }
@@ -124,5 +128,16 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
+}
+
+.s3-error {
+  flex: 1;
+  padding: 0 8px;
+  margin: 0 4px;
+}
+
+.s3-error.active {
+  background-color: tomato;
+  color: white;
 }
 </style>
