@@ -167,6 +167,9 @@ module.exports = {
         'Object storage':  [
           'Stockage d\'objets'
         ],
+        'S3 and compatible object storage access': [
+          'Accès aux stockage d\'objets type S3'
+        ],
         'Test': [
           'Tester'
         ],
@@ -181,8 +184,8 @@ module.exports = {
         ]
       },
       /* eventually any other data */
-      title: 'My amazing component',
-      info: 'Provides uber crazy services'
+      title: 'Object storage',
+      info: 'S3 and compatible object storage access'
     },
     /* domain related public options: could be any JSON object*/
     schema: {
