@@ -3,6 +3,15 @@
     <ig-form class="s3-config"
       v-if="!!config && !!schema" v-model="config" :schema="schema"></ig-form>
 
+    <div class="s3-header" v-if="defaultMethod">{{ $t('Defaults') }}</div>
+
+    <div v-if="defaultMethod === 'getObject' && presets">
+      <v-text-field v-model="presets[0]" autocomplete="off"
+        :label="$t('Bucket name')"></v-text-field>
+      <v-text-field v-model="presets[1]" autocomplete="off"
+        :label="$t('Object name')"></v-text-field>
+    </div>
+
     <div class="s3-header">{{ $t('Testing') }}</div>
 
     <div class="s3-test">
@@ -30,7 +39,12 @@
 
 <script>
 export default {
-  props: [ ],
+  props: [
+    /* use when source for worklows */
+    defaultMethod: {
+      type: String
+    }
+  ],
   data: () => {
     return {
       id: 's3_' + Math.random().toString(36).slice(2),
@@ -42,7 +56,8 @@ export default {
       object: null,
       tested: false,
       testOk: false,
-      error: ''
+      error: '',
+      presets: null
     }
   },
   watch: {
@@ -54,9 +69,28 @@ export default {
           console.log(err)
         })
       }
+    },
+    defaultMethod: function() {
+      this.updatePresetsInitials()
+    },
+    presets: {
+      handler: function(val) {
+        this.$services.waitForService('s3').then(s3Service => {
+          s3Service.presetMethodArgs(this.defaultMethod, val)
+        })
+      },
+      deep: true
     }
   },
   methods: {
+    updatePresetsInitials() {
+      switch (this.defaultMethod) {
+        case 'getObject':
+          // bucket, name
+          this.presets = [ '', '']
+          break
+      }
+    },
     handleTest() {
       this.error = ''
       this.tested = true
@@ -89,6 +123,10 @@ export default {
         console.log(err)
       }
     }).catch(err => console.log(err))
+
+    if (this.defaultMethod) {
+      this.updatePresetsInitials()
+    }
   },
   beforeDestroy() {
 

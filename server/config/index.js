@@ -181,6 +181,15 @@ module.exports = {
         ],
         'Files': [
           'Fichiers'
+        ],
+        'Defaults': [
+          'Valeurs par défaut'
+        ],
+        'Bucket name': [
+          'Nom du seau (bucket)'
+        ],
+        'Object name': [
+          'Nom de l\'objet'
         ]
       },
       /* eventually any other data */
