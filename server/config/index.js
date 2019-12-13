@@ -105,6 +105,12 @@ module.exports = {
     namespace: process.env.IIOS_NAMESPACE || 'ignitialio',
     /* grants for current service: auto-fill */
     grants: {
+      __privileged__: {
+        'create:any': [ '*' ],
+        'read:any': [ '*' ],
+        'update:any': [ '*' ],
+        'delete:any': [ '*' ]
+      },
       admin: {
         'create:any': [ '*' ],
         'read:any': [ '*' ],
@@ -190,6 +196,12 @@ module.exports = {
         ],
         'Object name': [
           'Nom de l\'objet'
+        ],
+        'Method presets updated': [
+          'Arguments prédéfinis de la méthode à jour'
+        ],
+        'Failed tu update method presets': [
+          'Mise à jour des arguments prédéfénis échouée'
         ]
       },
       /* eventually any other data */

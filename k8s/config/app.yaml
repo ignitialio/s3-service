@@ -21,25 +21,40 @@ accesscontrol:
   namespace: ignitialio
   # grants for current service: auto-fill
   grants:
+    __privileged__:
+      'dlake:myitems':
+        'create:any':
+          - '*'
+        'read:any':
+          - '*'
+        'update:any':
+          - '*'
+        'delete:any':
+          - '*'
     admin:
-      'create:any':
-        - '*'
-      'read:any':
-        - '*'
-      'update:any':
-        - '*'
-      'delete:any':
-        - '*'
+      'dlake:myitems':
+        'create:any':
+          - '*'
+        'read:any':
+          - '*'
+        'update:any':
+          - '*'
+        'delete:any':
+          - '*'
     user:
-      'read:any':
-        - '*'
-      'update:any':
-        - '*'
-      'delete:any':
-        - '*'
+      'dlake:myitems':
+        'create:any':
+          - '*'
+        'read:any':
+          - '*'
+        'update:any':
+          - '*'
+        'delete:any':
+          - '*'
     anonymous:
-      'read:any':
-        - '*'
+      'dlake:myitems':
+        'read:any':
+          - '*'
   # connector configuration: optional, default same as global connector, but on DB 1
   connector: "{{$.defs.connector}}"
 # HTTP server declaration

@@ -76,7 +76,11 @@ export default {
     presets: {
       handler: function(val) {
         this.$services.waitForService('s3').then(s3Service => {
-          s3Service.presetMethodArgs(this.defaultMethod, val)
+          s3Service.presetMethodArgs(this.defaultMethod, val).then(() => {
+            this.$services.emit('app:notification', this.$t('Method presets updated'))
+          }).catch(err => {
+            this.$services.emit('app:notification', this.$t('Failed tu update method presets'))
+          })
         })
       },
       deep: true
