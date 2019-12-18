@@ -208,7 +208,7 @@ module.exports = {
       title: 'Object storage',
       info: 'S3 and compatible object storage access'
     },
-    /* domain related public options: could be any JSON object*/
+    /* configuration data schema */
     schema: {
       title: 'Configuration',
       type: 'object',

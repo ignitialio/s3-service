@@ -6,34 +6,10 @@ const Service = require('@ignitial/iio-services').Service
 const utils = require('@ignitial/iio-services').utils
 const config = require('./config')
 
-class S3 extends Service {
-  constructor(options) {
-    super(options)
-
-    this._minioClient = new Minio.Client(this._options.store)
-  }
-
-  // set configuration and create client
-  // ***************************************************************************
-  setConfig(options) {
-    /* @_POST_ */
-    return new Promise((resolve, reject) => {
-      try {
-        this._options.store = options
-        this._minioClient = new Minio.Client(this._options.store)
-        resolve()
-      } catch (err) {
-        reject(err)
-      }
-    })
-  }
-
-  // get configuration
-  // ***************************************************************************
-  getConfig() {
-    return new Promise((resolve, reject) => {
-      resolve(this._options.store)
-    })
+class S3Instance {
+  constructor(id, client) {
+    this._id = id
+    this._minioClient = client
   }
 
   // creates S3 bucket if does not exist
@@ -178,6 +154,82 @@ class S3 extends Service {
       stream.on('end', function(err) {
         resolve(objs)
       })
+    })
+  }
+}
+
+class S3 extends Service {
+  constructor(options) {
+    super(options)
+
+    this._minioClient = new Minio.Client(this._options.store)
+  }
+
+  // set configuration and create client
+  // ***************************************************************************
+  setConfig(options) {
+    /* @_POST_ */
+    return new Promise((resolve, reject) => {
+      try {
+        this._options.store = options
+        this._minioClient = new Minio.Client(this._options.store)
+        resolve()
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+
+  // get configuration
+  // ***************************************************************************
+  getConfig() {
+    return new Promise((resolve, reject) => {
+      resolve(this._options.store)
+    })
+  }
+
+  addInstance(id) {
+    /* @_POST_ */
+    return new Promise((resolve, reject) => {
+      try {
+        if (this._instances[id]) {
+          delete this._instances[id]
+        }
+
+        this._instances[id] = new S3Instance(id, this._minioClient)
+        let methods = utils.getMethods(this._instances[id])
+
+        for (let method of methods) {
+          this[method + '_' + id] = this._instances[id][method]
+        }
+
+        resolve()
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+
+  removeInstance(id) {
+    /* @_DELETE_ */
+    return new Promise((resolve, reject) => {
+      delete this._instances[id]
+
+      resolve()
+    })
+  }
+
+  getInstances() {
+    /* @_GET_ */
+    return new Promise((resolve, reject) => {
+      resolve(Object.keys(this._instances))
+    })
+  }
+
+  getMethods(instanceId) {
+    /* @_GET_ */
+    return new Promise((resolve, reject) => {
+      resolve(utils.getMethods(this).filter(e => e.match(instanceId)))
     })
   }
 }
