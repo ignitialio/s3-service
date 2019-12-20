@@ -208,6 +208,26 @@ module.exports = {
       title: 'Object storage',
       info: 'S3 and compatible object storage access'
     },
+    /* can be an worflow (Chaman) block */
+    workflow: {
+      types: [ 'Source', 'Destination' ],
+      hasWidget: false,
+      isMultinstance: true,
+      inputs: [
+        {
+          name: 'dataIn',
+          type: 'rpc',
+          method: 'putObject'
+        }
+      ],
+      outputs: [
+        {
+          name: 'dataOut',
+          type: 'rpc',
+          method: 'getObject'
+        }
+      ]
+    },
     /* configuration data schema */
     schema: {
       title: 'Configuration',
