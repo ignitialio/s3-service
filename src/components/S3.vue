@@ -39,12 +39,12 @@
 
 <script>
 export default {
-  props: [
+  props: {
     /* use when source for worklows */
     defaultMethod: {
       type: String
     }
-  ],
+  },
   data: () => {
     return {
       id: 's3_' + Math.random().toString(36).slice(2),
